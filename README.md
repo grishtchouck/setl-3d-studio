@@ -6,8 +6,11 @@
 
 ## Что внутри
 
-- `index.html` — готовая страница: three.js-вьюер с моделью, встроенной в файл (glTF в base64, ~170 КБ).
+- `index.html` — собранная страница (её отдаёт Vercel). Не править руками — собирается `build.sh`.
+- `src/viewer.html` — исходник вьюера (three.js r160, GTAO, тени, точки отделки, подсветка мебели, план с размерами).
 - `blender/build_studio.py` — скрипт для Blender 5.x: строит студию по координатам и выгружает `studio.glb`.
+- `models/studio.glb` — выгрузка из Blender; `models/studio.min.glb` — сжатая meshopt-версия (~240 КБ).
+- `build.sh` — сжатие модели и встраивание её в `index.html`.
 
 ## Как устроено
 
@@ -20,9 +23,9 @@
 
 ## Обновить модель
 
-1. Запустить `blender/build_studio.py` в Blender (через MCP или Scripting).
-2. Скрипт сохранит `~/Desktop/setl-studio/studio.glb`.
-3. Встроить его в `index.html` вместо текущей base64-строки `GLB_B64`.
+1. Запустить `blender/build_studio.py` в Blender (через MCP или Scripting) — он сохранит `~/Desktop/setl-studio/studio.glb`.
+2. Скопировать файл в `models/studio.glb`.
+3. `./build.sh` — сожмёт модель и пересоберёт `index.html`.
 
 ## Ограничения прототипа
 
