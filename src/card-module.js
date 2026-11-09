@@ -171,7 +171,7 @@ if(anim){const k=Math.min(1,(now-anim.t0)/750);furniture.forEach((o,i)=>{const d
 camera.position.copy(camPos());camera.lookAt(tgt);camera.updateMatrixWorld();
 const topK=Math.max(0,1-ph/.35);
 if(dimGroup.userData.mat){dimGroup.userData.mat.opacity=topK;dimEls.forEach(d=>{project(d.pos,d.el);d.el.style.opacity=topK;});}
-zoneEls.forEach((el,i)=>{const z=ZONES[i];project([z[2],.02,z[3]],el);el.style.opacity=furnOn?0:1;});
+zoneEls.forEach((el,i)=>{const z=ZONES[i];project([z[2],.02,z[3]],el);el.style.opacity=(furnOn||openPin>=0)?0:1;});
 camera.getWorldDirection(camDir);
 pinEls.forEach((el,i)=>{const p=PINS[i].pos;const vis=project(p,el);const show=!furnOn&&topK<.5&&vis;el.style.opacity=show?1:0;el.style.pointerEvents=show?'auto':'none';});
 if(openPin>=0)placeInfo();

@@ -32,7 +32,7 @@ h1{font-size:26px;font-weight:800;margin:0;letter-spacing:-.02em}
 .seg .pill{position:absolute;top:4px;bottom:4px;left:4px;border-radius:10px;background:#1d1c1a;transition:transform .35s cubic-bezier(.3,.9,.3,1),width .35s cubic-bezier(.3,.9,.3,1)}
 .seg button{position:relative;z-index:1;font:inherit;font-size:13px;font-weight:700;border:none;background:transparent;border-radius:10px;padding:9px 14px;cursor:pointer;color:#57544d;white-space:nowrap;transition:color .25s}
 .seg button.on{color:#fff}
-.zone{position:absolute;transform:translate(-50%,-50%);pointer-events:none;text-align:center;transition:opacity .4s;color:#3b3833;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.zone{position:absolute;transform:translate(-50%,-50%);pointer-events:none;text-align:center;transition:opacity .3s;color:#1d1c1a;background:rgba(255,255,255,.94);border-radius:10px;padding:5px 10px 6px;box-shadow:0 2px 10px rgba(30,20,10,.14);white-space:nowrap}
 .zone b{display:block;font-size:15px;font-weight:800;letter-spacing:-.01em}
 .zone span{display:block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7c776d}
 .pin{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;border:none;background:#fff;box-shadow:0 2px 10px rgba(30,20,10,.25);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .35s,transform .2s;padding:0;z-index:2}
@@ -304,7 +304,7 @@ if(anim){const k=Math.min(1,(now-anim.t0)/750);furniture.forEach((o,i)=>{const d
 camera.position.copy(camPos());camera.lookAt(tgt);camera.updateMatrixWorld();
 const topK=Math.max(0,1-ph/.35);
 if(dimGroup.userData.mat){dimGroup.userData.mat.opacity=topK;dimEls.forEach(d=>{project(d.pos,d.el);d.el.style.opacity=topK;});}
-zoneEls.forEach((el,i)=>{const z=ZONES[i];project([z[2],.02,z[3]],el);el.style.opacity=furnOn?0:1;});
+zoneEls.forEach((el,i)=>{const z=ZONES[i];project([z[2],.02,z[3]],el);el.style.opacity=(furnOn||openPin>=0)?0:1;});
 camera.getWorldDirection(camDir);
 pinEls.forEach((el,i)=>{const p=PINS[i].pos;const vis=project(p,el);const show=!furnOn&&topK<.5&&vis;el.style.opacity=show?1:0;el.style.pointerEvents=show?'auto':'none';});
 if(openPin>=0)placeInfo();
