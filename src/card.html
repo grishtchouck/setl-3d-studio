@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Макет: 3D-планировка в карточке квартиры</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{--red:#ed1c24;--ink:#1a1a1a;--mute:#7a7a7a;--line:#ececec;--soft:#f6f6f6}
+html,body{margin:0;background:#fff;color:var(--ink);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body.lock{overflow:hidden}
+.mockbar{background:#1a1a1a;color:#fff;font-size:12px;text-align:center;padding:7px 12px}
+.mockbar b{color:#ffb4ae}
+header{border-bottom:1px solid var(--line)}
+.hwrap,.wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+.hwrap{display:flex;align-items:center;gap:36px;height:76px}
+.wm{font-weight:700;font-size:22px;letter-spacing:-.02em;border:2px solid var(--red);padding:4px 8px}
+.nav{display:flex;gap:26px;font-size:14px;font-weight:500}
+.nav span:first-child{color:var(--red)}
+.phone{margin-left:auto;font-size:14px;font-weight:500}
+.crumbs{font-size:12px;color:var(--mute);padding:18px 0 24px}
+h1{font-size:34px;line-height:1.25;font-weight:500;margin:0 0 10px;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--red)}
+.loc{font-size:14px;color:var(--mute);margin-bottom:28px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start;padding-bottom:60px}
+.plan{background:var(--soft);border-radius:24px;position:relative;min-height:560px;display:flex;flex-direction:column}
+.ptabs{display:flex;gap:6px;padding:16px}
+.ptabs button{font:inherit;font-size:13px;font-weight:500;border:none;background:#fff;border-radius:10px;padding:9px 14px;cursor:pointer;color:var(--ink)}
+.ptabs button.on{background:var(--ink);color:#fff}
+.ptabs .new{position:relative}
+.ptabs .new:after{content:'NEW';position:absolute;top:-7px;right:-6px;background:var(--red);color:#fff;font-size:9px;font-weight:700;border-radius:6px;padding:2px 4px}
+.pimg{flex:1;display:flex;align-items:center;justify-content:center;padding:10px 40px 90px}
+.pimg svg{width:100%;max-width:720px;height:auto}
+.open3d{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:#fff;border:none;border-radius:16px;padding:10px 18px 10px 10px;font:inherit;font-weight:600;font-size:15px;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.12);transition:transform .2s,box-shadow .2s;color:var(--ink)}
+.open3d:hover{transform:translateX(-50%) translateY(-2px);box-shadow:0 10px 32px rgba(0,0,0,.16)}
+.open3d .ic{width:40px;height:40px;border-radius:12px;background:var(--red);display:flex;align-items:center;justify-content:center}
+.open3d small{display:block;font-size:12px;font-weight:500;color:var(--mute)}
+.cube{width:20px;height:20px;animation:spinc 6s linear infinite}
+@keyframes spinc{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.info-card{border:1px solid var(--line);border-radius:24px;padding:24px}
+.price{font-size:32px;font-weight:600;letter-spacing:-.02em}
+.ppm{font-size:14px;color:var(--mute);margin:4px 0 14px}
+.chips{display:flex;gap:6px;margin-bottom:18px}
+.chips span{font-size:12px;font-weight:500;background:var(--soft);border-radius:8px;padding:5px 9px}
+.rows{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;font-size:14px;margin-bottom:20px}
+.rows span:nth-child(odd){color:var(--mute)}
+.rows span:nth-child(even){text-align:right}
+.btn{font:inherit;font-weight:600;font-size:15px;border:none;border-radius:14px;padding:15px 16px;cursor:pointer;width:100%;transition:background .15s,transform .15s}
+.btn:active{transform:scale(.98)}
+.btn.red{background:var(--red);color:#fff}.btn.red:hover{background:#d51219}
+.btn.dark{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}.btn.dark:hover{background:var(--soft)}
+
+/* модальное окно */
+.modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(18,16,14,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .3s}
+.modal.open{opacity:1;pointer-events:auto}
+.panel{width:min(1380px,95vw);height:min(880px,92vh);background:#fff;border-radius:28px;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 340px;transform:translateY(18px) scale(.985);transition:transform .45s cubic-bezier(.2,.9,.2,1);box-shadow:0 30px 90px rgba(0,0,0,.35)}
+.modal.open .panel{transform:none}
+.stage{position:relative;overflow:hidden;background:#ede9e2}
+#c{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+#c.grabbing{cursor:grabbing}
+aside{display:flex;flex-direction:column;min-height:0;border-left:1px solid var(--line)}
+.ahead{padding:22px 22px 14px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.ahead .k{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--red)}
+.ahead h2{margin:4px 0 0;font-size:20px;font-weight:600;letter-spacing:-.01em}
+.ahead p{margin:3px 0 0;font-size:13px;color:var(--mute)}
+.close{flex:none;width:38px;height:38px;border-radius:50%;border:none;background:var(--soft);cursor:pointer;font-size:20px;line-height:1;color:var(--ink)}
+.close:hover{background:#ebebeb}
+.ascroll{flex:1;overflow:auto;padding:0 22px 16px}
+.sec{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:14px 0 8px}
+.rooms{display:grid;grid-template-columns:1fr auto;gap:8px 12px;font-size:14px}
+.rooms span:nth-child(even){text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
+.rooms .sub{color:var(--mute);padding-left:12px;font-size:13px}
+.rooms .tot{border-top:1px solid var(--line);padding-top:9px;font-weight:600}
+.furn{margin-top:18px;border-radius:18px;background:var(--soft);padding:16px;transition:background .3s,box-shadow .3s}
+.furn.active{background:#fff5f4;box-shadow:inset 0 0 0 1.5px #ffd3cf}
+.furn .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.furn b{font-size:16px;font-weight:600}
+.furn .from{font-size:14px;font-weight:600;color:var(--red);white-space:nowrap}
+.furn p{margin:6px 0 10px;font-size:13px;line-height:1.5;color:#4b4b4b}
+.furn .tiers{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.furn .tiers span{font-size:12px;font-weight:500;background:#fff;border-radius:8px;padding:5px 9px}
+.furn .tiers span.on{background:var(--ink);color:#fff}
+.furn details summary{cursor:pointer;font-size:13px;font-weight:600;list-style:none;display:flex;justify-content:space-between;padding:10px 0 2px;border-top:1px solid rgba(0,0,0,.07);margin-top:8px}
+.furn details summary::-webkit-details-marker{display:none}
+.furn details summary:after{content:'+';color:var(--mute);font-size:16px;line-height:1}
+.furn details[open] summary:after{content:'–'}
+.furn .grp{font-size:10px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin:10px 0 3px}
+.furn ul{margin:0;padding-left:16px;font-size:13px;line-height:1.6}
+.furn .note{font-size:12px;color:var(--mute);margin-top:8px}
+.furn .tryit{font:inherit;font-size:13px;font-weight:600;color:var(--red);background:none;border:none;padding:0;cursor:pointer;margin-top:4px}
+.furn.active .tryit{display:none}
+.afoot{padding:14px 22px 20px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px;background:#fff}
+.fine{font-size:11px;color:#a0a0a0;line-height:1.45;margin-top:2px}
+/* элементы сцены */
+.ctl{position:absolute;left:16px;top:16px;right:16px;display:flex;justify-content:space-between;gap:10px;pointer-events:none;z-index:3}
+.seg{position:relative;display:flex;background:rgba(255,255,255,.8);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);border-radius:14px;padding:4px;pointer-events:auto;box-shadow:0 4px 18px rgba(40,30,20,.10)}
+.seg .pill{position:absolute;top:4px;bottom:4px;left:4px;border-radius:10px;background:var(--ink);transition:transform .35s cubic-bezier(.3,.9,.3,1),width .35s cubic-bezier(.3,.9,.3,1)}
+.seg button{position:relative;z-index:1;font:inherit;font-size:13px;font-weight:600;border:none;background:transparent;border-radius:10px;padding:9px 14px;cursor:pointer;color:#555;white-space:nowrap;transition:color .25s}
+.seg button.on{color:#fff}
+.zone{position:absolute;transform:translate(-50%,-50%);pointer-events:none;text-align:center;transition:opacity .4s;color:#3b3833;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.zone b{display:block;font-size:15px;font-weight:700;letter-spacing:-.01em}
+.zone span{display:block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7c776d}
+.pin{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;border:none;background:#fff;box-shadow:0 2px 10px rgba(30,20,10,.25);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .35s,transform .2s;padding:0;z-index:2}
+.pin:before{content:'';position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(237,28,36,.5);animation:pulse 2.4s ease-out infinite}
+.pin i{width:10px;height:10px;border-radius:50%;background:var(--red);display:block;transition:transform .2s}
+.pin:hover{transform:scale(1.12)}.pin.on i{transform:scale(1.4)}
+@keyframes pulse{0%{transform:scale(.7);opacity:1}80%,100%{transform:scale(1.5);opacity:0}}
+.info{position:absolute;z-index:4;width:290px;background:rgba(255,255,255,.97);border-radius:16px;box-shadow:0 12px 40px rgba(30,20,10,.18);padding:16px 16px 14px;opacity:0;transform:translateY(6px) scale(.98);pointer-events:none;transition:opacity .22s,transform .22s}
+.info.show{opacity:1;transform:none;pointer-events:auto}
+.info .k{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--red)}
+.info h3{margin:4px 0 6px;font-size:16px;font-weight:600}
+.info p{margin:0;font-size:13px;line-height:1.5;color:#4b4b4b}
+.info .chips2{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.info .chips2 span{font-size:11px;font-weight:600;background:var(--soft);border-radius:999px;padding:4px 9px;color:#555}
+.info .x{position:absolute;right:10px;top:10px;border:none;background:var(--soft);width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:14px;color:#555}
+.tip{position:absolute;z-index:4;pointer-events:none;background:var(--ink);color:#fff;border-radius:12px;padding:8px 12px;transform:translate(-50%,calc(-100% - 14px));white-space:nowrap;opacity:0;transition:opacity .15s}
+.tip b{display:block;font-size:13px;font-weight:600}
+.tip small{display:block;font-size:11px;color:#d0d0d0}
+.tip:after{content:'';position:absolute;left:50%;bottom:-5px;width:10px;height:10px;background:var(--ink);transform:translateX(-50%) rotate(45deg);border-radius:2px}
+.hint{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:3;background:rgba(26,26,26,.82);color:#fff;font-size:12px;font-weight:500;padding:9px 14px;border-radius:999px;pointer-events:none;transition:opacity .6s;white-space:nowrap}
+.dim{white-space:nowrap;position:absolute;transform:translate(-50%,-50%);font-size:11px;font-weight:700;color:#3b3833;background:#fff;border-radius:6px;padding:2px 6px;pointer-events:none;box-shadow:0 1px 4px rgba(0,0,0,.1);transition:opacity .4s;font-variant-numeric:tabular-nums}
+#loading{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;color:#777;font-size:14px;font-weight:500;background:#ede9e2;transition:opacity .6s}
+#loading i{width:36px;height:36px;border-radius:50%;border:3px solid #e0dbd2;border-top-color:var(--red);animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (max-width:860px){
+.hwrap,.wrap{padding:0 16px}.nav,.phone{display:none}
+h1{font-size:24px}.grid{grid-template-columns:1fr}.plan{min-height:420px}.pimg{padding:6px 12px 90px}
+.modal{align-items:stretch}
+.panel{width:100vw;height:100%;border-radius:0;grid-template-columns:1fr;grid-template-rows:58% minmax(0,1fr)}
+aside{border-left:none;border-top:1px solid var(--line)}
+.ahead{padding:14px 16px 6px}.ahead h2{font-size:17px}.ascroll{padding:0 16px 10px}
+.afoot{padding:10px 16px 14px;flex-direction:row}.afoot .btn{padding:13px 10px;font-size:14px}.fine{display:none}
+.seg button{padding:8px 10px;font-size:12px}
+.info{left:12px!important;right:12px;bottom:12px;top:auto!important;width:auto}
+.hint{bottom:auto;top:62px}
+.zone b{font-size:12px}.zone span{font-size:9px}.pin{width:24px;height:24px;margin:-12px 0 0 -12px}.pin i{width:8px;height:8px}.pin:before{inset:-4px}}
+</style>
+</head>
+<body>
+<div class="mockbar"><b>Макет для проверки гипотезы.</b> Фон — упрощённая копия карточки квартиры; новое — кнопка «Смотреть в 3D» и окно 3D-планировки.</div>
+<header><div class="hwrap"><span class="wm">SetlGroup</span><nav class="nav"><span>Меню</span><span>Проекты</span><span>Выбрать квартиру</span><span>Покупателям</span><span>О нас</span><span>Контакты</span></nav><span class="phone">+7 (812) 635-32-50</span></div></header>
+<main class="wrap">
+<div class="crumbs">Главная › ЖК Сэтл Дворцовый › Квартиры › №211</div>
+<h1>Студия 21.39 м² на 3 этаже с отделкой<br>в <em>ЖК «Сэтл Дворцовый»</em></h1>
+<div class="loc">Санкт-Петербург, пос. Стрельна · пр. Ветеранов · 25 мин</div>
+<div class="grid">
+<div class="plan">
+<div class="ptabs"><button class="on">Планировка</button><button>На этаже</button><button>На карте</button><button class="new" id="tab3d">3D</button></div>
+<div class="pimg" id="pimg"></div>
+<button class="open3d" id="open3d"><span class="ic"><svg class="cube" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2 21 7v10l-9 5-9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg></span><span>Смотреть в 3D<small>С мебелью и описанием отделки</small></span></button>
+</div>
+<div class="info-card">
+<div class="price">7 200 056 ₽</div>
+<div class="ppm">336 609 ₽ за м²</div>
+<div class="chips"><span>С отделкой</span><span>Комфорт</span></div>
+<div class="rows"><span>Срок сдачи</span><span>II кв. 2029</span><span>Этаж</span><span>3 из 4</span><span>Корпус</span><span>Корпус 1.2</span><span>Отделка</span><span>Норд Лайн Светлый — 2</span><span>Услуги</span><span>Меблировка</span></div>
+<button class="btn red">Получить консультацию</button>
+</div>
+</div>
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="3D-планировка">
+<div class="panel">
+<div class="stage" id="stage">
+<canvas id="c"></canvas>
+<div id="overlay"></div>
+<div class="tip" id="tip"><b></b><small></small></div>
+<div class="info" id="info"><button class="x" id="infoX" aria-label="Закрыть">×</button><div class="k" id="infoK"></div><h3 id="infoT"></h3><p id="infoP"></p><div class="chips2" id="infoC"></div></div>
+<div class="ctl">
+<div class="seg" id="mode"><span class="pill"></span><button data-m="empty" class="on">Как сдаётся</button><button data-m="furn">С мебелью</button></div>
+<div class="seg" id="view"><span class="pill"></span><button data-v="iso" class="on">3D</button><button data-v="top">План</button></div>
+</div>
+<div class="hint" id="hint">Нажмите на точку — расскажем об отделке</div>
+<div id="loading"><i></i>Собираем квартиру…</div>
+</div>
+<aside>
+<div class="ahead"><div><div class="k">3D-планировка</div><h2>Студия 21.39 м²</h2><p>№211 · 3 этаж · Корпус 1.2</p></div><button class="close" id="close3d" aria-label="Закрыть">×</button></div>
+<div class="ascroll">
+<div class="sec">Площади помещений</div>
+<div class="rooms">
+<span>Кухня-гостиная</span><span>15.26 м²</span>
+<span class="sub">жилая зона</span><span class="sub">10.26 м²</span>
+<span class="sub">кухонная зона</span><span class="sub">5.00 м²</span>
+<span>Санузел</span><span>3.12 м²</span>
+<span>Прихожая</span><span>3.01 м²</span>
+<span>Лоджия</span><span>4.24 м²</span>
+<span class="tot">Общая площадь</span><span class="tot">21.39 м²</span>
+</div>
+<div class="furn" id="furnBlock">
+<div class="top"><b>Меблировка</b><span class="from">от 300 000 ₽</span></div>
+<p>Кухня с техникой, обеденная зона, телевизор, шкаф и спальное место, карниз со шторами и тюлем. Доставка и сборка включены.</p>
+<div class="tiers"><span class="on">Базовый</span><span>Высокий комфорт</span><span>Бизнес</span></div>
+<button class="tryit" id="tryFurn">Показать мебель на 3D →</button>
+<details><summary>Состав комплекта</summary>
+<div class="grp">Кухня-гостиная</div>
+<ul><li>Кухонный гарнитур, мойка, смеситель</li><li>Варочная поверхность, вытяжка</li><li>Холодильник</li><li>Обеденный стол, стулья — 2 шт.</li><li>Диван, шкаф</li><li>Тумба под ТВ, телевизор</li></ul>
+<div class="grp">Прихожая</div><ul><li>Панель с крючками</li></ul>
+<div class="grp">Текстиль</div><ul><li>Карниз, шторы, тюль</li></ul>
+</details>
+<div class="note">На 3D — пример меблировки. Мебель не входит в стоимость квартиры.</div>
+</div>
+</div>
+<div class="afoot">
+<button class="btn red" id="mCta">Оставить заявку</button>
+<button class="btn dark" id="mCta2">Рассчитать стоимость меблировки</button>
+<div class="fine">Описание отделки на 3D условное. Размеры сняты с планировки, точность ±5 см.</div>
+</div>
+</aside>
+</div>
+</div>
+
+<script>
+/* 2D-план в карточке (из тех же координат, что и 3D) */
+(function(){const S=90,ox=30,oy=40,X=x=>ox+(x+.2)*S,Y=z=>oy+(z+.3)*S;
+const W=[[-.2,-.3,8.17,0,'o'],[-.2,-.3,0,3.63,'o'],[-.2,3.48,8.17,3.63,'o'],[6.52,0,6.82,.71,'o'],[6.52,2.39,6.82,3.48,'o'],[8.07,0,8.17,3.48,'p'],[0,1.68,.68,1.78],[1.34,1.68,2.27,1.78],[2.2,0,2.27,1.68],[1.78,1.78,1.88,1.99],[1.78,2.83,1.88,3.48],[1.65,0,2.2,.3]];
+let r='';W.forEach(w=>{r+=`<rect x="${X(w[0])}" y="${Y(w[1])}" width="${(w[2]-w[0])*S}" height="${(w[3]-w[1])*S}" fill="${w[4]==='p'?'#c8c8c8':'#ed1c24'}"/>`;});
+r+=`<rect x="${X(4.91)}" y="${Y(-.3)}" width="${.87*S}" height="${.3*S}" fill="#fff" stroke="#bbb"/><rect x="${X(6.52)}" y="${Y(1.49)}" width="${.3*S}" height="${.9*S}" fill="#fff" stroke="#bbb"/>`;
+const L=[['15.26',4.4,1.75,'Кухня-гостиная'],['3.12',1.0,1.0,'Санузел'],['3.01',.9,2.65,'Прихожая'],['4.24',7.45,1.75,'Лоджия']];
+L.forEach(l=>{r+=`<text x="${X(l[1])}" y="${Y(l[2])}" text-anchor="middle" font-family="Inter" font-size="26" fill="#1a1a1a">${l[0]}</text><text x="${X(l[1])}" y="${Y(l[2])+22}" text-anchor="middle" font-family="Inter" font-size="13" fill="#999">${l[3]}</text>`;});
+r+=`<line x1="${X(2.27)}" y1="${Y(1.9)}" x2="${X(3.57)}" y2="${Y(1.9)}" stroke="#ddd" stroke-dasharray="6 6"/>`;
+document.getElementById('pimg').innerHTML=`<svg viewBox="0 0 ${X(8.17)+30} ${Y(3.63)+40}">${r}</svg>`;})();
+/* открытие / закрытие окна */
+window.__3dOpen=false;
+function open3d(src){const m=document.getElementById('modal');m.classList.add('open');document.body.classList.add('lock');window.__3dOpen=true;(window.dataLayer=window.dataLayer||[]).push({event:'flat3d_open',source:src});
+if(!window.__booted&&window.__boot3d){window.__booted=true;window.__boot3d();}setTimeout(()=>window.__3dResize&&window.__3dResize(),60);}
+function close3d(){document.getElementById('modal').classList.remove('open');document.body.classList.remove('lock');window.__3dOpen=false;(window.dataLayer=window.dataLayer||[]).push({event:'flat3d_close'});}
+document.getElementById('open3d').onclick=()=>open3d('button');
+document.getElementById('tab3d').onclick=()=>open3d('tab');
+document.getElementById('close3d').onclick=close3d;
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')close3d();});
+addEventListener('keydown',e=>{if(e.key==='Escape')close3d();});
+document.getElementById('tryFurn').onclick=()=>document.querySelector('#mode button[data-m=furn]').click();
+</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+__MODULE__
+</script>
+</body>
+</html>

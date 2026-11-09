@@ -301,7 +301,7 @@ else if(!drag&&(Math.abs(vth)>1e-4||Math.abs(vph)>1e-4)){th+=vth;ph=Math.max(.00
 else if(!interacted&&!tween&&view==='iso'){th=VIEWS.iso.th+Math.sin((now-introT0-2400)/4000)*.14*Math.min(1,Math.max(0,(now-introT0-2400)/3000));dirty=Math.max(dirty,1);}
 if(walls.length&&walls[0].scale.y<1){walls.forEach(w=>{const k=Math.min(1,Math.max(0,(now-introT0-w.userData.delay)/700));w.scale.y=Math.max(.001,back(k));});dirty=Math.max(dirty,2);}
 if(anim){const k=Math.min(1,(now-anim.t0)/750);furniture.forEach((o,i)=>{const d=Math.min(1,Math.max(0,k*1.7-((o.userData.y0*7+i)%9)*.06));const s=anim.on?back(d):1-easeOut(d);o.position.y=o.userData.y0+(1-Math.min(1,s))*.8;o.visible=s>.01&&!o.userData.cut;});if(k>=1){furniture.forEach(o=>{o.position.y=o.userData.y0;o.visible=anim.on&&!o.userData.cut;});anim=null;}dirty=Math.max(dirty,2);}
-camera.position.copy(camPos());camera.lookAt(tgt);
+camera.position.copy(camPos());camera.lookAt(tgt);camera.updateMatrixWorld();
 const topK=Math.max(0,1-ph/.35);
 if(dimGroup.userData.mat){dimGroup.userData.mat.opacity=topK;dimEls.forEach(d=>{project(d.pos,d.el);d.el.style.opacity=topK;});}
 zoneEls.forEach((el,i)=>{const z=ZONES[i];project([z[2],.02,z[3]],el);el.style.opacity=furnOn?0:1;});
